@@ -1,0 +1,121 @@
+let currentPlayer = 1;
+let playerOneName, playerTwoName;
+let playerOneWins = 0, playerTwoWins = 0;
+let totalGames = 0;
+
+function startGame() {
+    playerOneName = document.getElementById("playerOne").value;
+    playerTwoName = document.getElementById("playerTwo").value;
+
+    document.getElementById("page-one").classList.add("hidden");
+    document.getElementById("page-two").classList.remove("hidden");
+
+    updatePlayerInfo();
+    createGameBoard();
+}
+
+function updatePlayerInfo() {
+    const playerInfo = document.getElementById("playerInfo");
+    playerInfo.innerHTML = `<p>${currentPlayer === 1 ? playerOneName : playerTwoName}'s Turn</p>`;
+}
+
+function createGameBoard() {
+    const ticTacToeBoard = document.getElementById("ticTacToeBoard");
+
+    for (let i = 0; i < 3; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < 3; j++) {
+            const cell = document.createElement("td");
+            cell.setAttribute("onclick", `makeMove(${i},${j})`);
+            row.appendChild(cell);
+        }
+        ticTacToeBoard.appendChild(row);
+    }
+}
+
+function makeMove(row, col) {
+    const cell = document.getElementById("ticTacToeBoard").rows[row].cells[col];
+
+    if (cell.innerHTML === "") {
+        cell.innerHTML = currentPlayer === 1 ? "X" : "O";
+
+        if (checkWinner()) {
+            alert(`${currentPlayer === 1 ? playerOneName : playerTwoName} Wins!`);
+            updateGameRecord();
+            resetGame();
+        } else if (checkDraw()) {
+            alert("It's a Draw!");
+            resetGame();
+        } else {
+            currentPlayer = 3 - currentPlayer; // Switch player (1 to 2, 2 to 1)
+            updatePlayerInfo();
+        }
+    }
+}
+
+function checkWinner() {
+    const board = document.getElementById("ticTacToeBoard").rows;
+    for (let i = 0; i < 3; i++) {
+        if (board[i].cells[0].innerHTML !== "" &&
+            board[i].cells[0].innerHTML === board[i].cells[1].innerHTML &&
+            board[i].cells[0].innerHTML === board[i].cells[2].innerHTML) {
+            return true;
+        }
+
+        if (board[0].cells[i].innerHTML !== "" &&
+            board[0].cells[i].innerHTML === board[1].cells[i].innerHTML &&
+            board[0].cells[i].innerHTML === board[2].cells[i].innerHTML) {
+            return true;
+        }
+    }
+
+    if (board[0].cells[0].innerHTML !== "" &&
+        board[0].cells[0].innerHTML === board[1].cells[1].innerHTML &&
+        board[0].cells[0].innerHTML === board[2].cells[2].innerHTML) {
+        return true;
+    }
+
+    if (board[0].cells[2].innerHTML !== "" &&
+        board[0].cells[2].innerHTML === board[1].cells[1].innerHTML &&
+        board[0].cells[2].innerHTML === board[2].cells[0].innerHTML) {
+        return true;
+    }
+
+    return false;
+}
+
+function checkDraw() {
+    const board = document.getElementById("ticTacToeBoard").rows;
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (board[i].cells[j].innerHTML === "") {
+                return false; // If any cell is empty, the game is not a draw
+            }
+        }
+    }
+    return true; // All cells are filled, it's a draw
+}
+
+function updateGameRecord() {
+    totalGames++;
+
+    if (currentPlayer === 1) {
+        playerOneWins++;
+    } else {
+        playerTwoWins++;
+    }
+
+    const gameRecord = document.getElementById("gameRecord");
+    gameRecord.innerHTML = `
+        <p>${playerOneName}: ${playerOneWins} Wins</p>
+        <p>${playerTwoName}: ${playerTwoWins} Wins</p>
+        <p>Total Games: ${totalGames}</p>
+    `;
+}
+
+function resetGame() {
+    document.getElementById("ticTacToeBoard").innerHTML = "";
+    currentPlayer = 1;
+    createGameBoard();
+    updatePlayerInfo();
+}
